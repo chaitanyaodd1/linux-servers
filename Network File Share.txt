@@ -1,0 +1,87 @@
+Network File Share:
+```````````````````
+Port 		: 2049/tcp
+Package		: nfs-utils
+Service		: nfs-server
+Service Acc	: nfsnobody
+Config		: /etc/exports
+
+``````````````````````````
+
+
+ON SERVER:
+```````
+
+1) Install
+```````
+# yum install nfs-utils -y
+
+2) Create data:
+````````````
+# mkdir /data
+# touch /data/secret
+# chmod -R 755 /data
+# chown nfsnobody:nfsnobody /data -R
+
+3) Config:
+```````
+# vim /etc/exports
+
+/data    192.168.1.254/255.255.255.0(rw,sync,no_root_squash)
+
+OR
+
+/data		192.168.1.0/255.255.255.0(rw,sync,no_root_squash)
+
+OR
+
+/data 		*(rw,sync,no_root_squash)
+
+:wq
+
+
+
+
+
+
+NOTE:
+[no_root_squash: This option basically gives authority to the root user on the client to access files on the NFS server as root.]
+
+
+
+
+
+
+
+# systemctl restart nfs-server
+# systemctl enable nfs-server
+# firewall-cmd --zone=public --add-service=nfs --permanent
+# firewall-cmd --reload
+
+______________________________________
+On Client 
+```````
+# yum install nfs-utils -y  [CentOS]
+# apt install nfs-common -y [Debian]
+
+TEMP MOUNTING:
+``````````````
+# mount -t nfs 192.168.1.254:/data /mnt
+
+-t  : type of filesystem
+192.168.1.254 : NFS server IP
+
+# df -h
+
+# umount /mnt
+
+Mounting permanently
+````````````````````
+# vim /etc/fstab
+
+192.168.1.254:/data 	/mnt 	nfs   defaults   0  0
+
+:wq
+
+# mount -a
+# df -h

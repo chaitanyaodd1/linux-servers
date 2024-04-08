@@ -1,0 +1,103 @@
+Samba:File Share
+``````````````
+Ports: 139, 445
+Packages: samba samba-common samba-client
+Service: smb nmb
+Config: /etc/samba/smb.conf
+
+
+
+
+
+
+
+
+
+
+
+
+
+On Server machine:
+````````````
+# yum install samba samba-common samba-client -y
+# mkdir /admin
+# chmod -R 755 /admin
+# chown -R nobody:nobody /admin
+
+
+
+
+
+
+
+
+
+# vim /etc/samba/smb.conf
+
+[global]
+workgroup = WORKGROUP
+
+Go to end of the file & add :
+
+[admin]
+path =  /admin
+browsable = yes
+writable = yes
+guest ok = yes
+read only = no
+:wq
+
+To check:
+```````
+# testparm
+# systemctl start smb nmb
+# systemctl enable smb nmb
+
+# systemctl status smb nmb
+
+[+] Enable SAMBA in firewalld.
+
+On Client:
+````````
+# yum install samba-client -y
+# apt install samba-client -y
+
+Access:
+``
+# smbclient '\\192.168.206.140\admin'
+
+Enter WORKGROUP\root's password: [just hit enter]
+Anonymous login successful
+smb: \> ls
+smb: \> exit
+
+
+
+
+____________
+Secure Samba Share Directory:
+``````````````````````````
+# useradd smbuser
+# smbpasswd -a smbuser
+# groupadd smb_group
+# usermod -G smb_group smbuser
+# chmod -R 770 /admin
+# chown -R root:smb_group /admin
+
+Add these lines to define to secure samba share in smb.conf.
+
+[admin]
+path = /admin
+valid users = @smb_group
+guest ok = no
+writable = no
+browsable = yes
+
+# systemctl restart smb nmb
+
+________________
+Client:
+`````````
+# yum install samba-client -y [RedHat/CentOS]
+# apt install samba-client -y [Debian]
+# smbclient '\\192.168.206.140\admin' -U smbuser

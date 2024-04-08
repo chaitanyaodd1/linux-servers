@@ -1,0 +1,59 @@
+DHCP Server:
+`````````````
+Dynamic Host Configuration protocol
+
+
+
+# yum -y install dhcp 
+
+
+
+
+
+
+
+
+
+# cp -av /usr/share/doc/dhcp-4.2.5/dhcpd.conf.example /etc/dhcp/dhcpd.conf
+
+# vim /etc/dhcp/dhcpd.conf
+
+
+
+
+
+
+
+default-lease-time 600;
+max-lease-time 7200;
+
+authoritative;
+allow bootp;
+
+# A slightly different configuration for an internal subnet.
+subnet 192.168.206.0 netmask 255.255.255.0 {
+  range 192.168.206.110 192.168.206.200;
+  next-server 192.168.206.100;
+  next-server 192.168.206.101;
+  option domain-name "sniper.com";
+=r.sniper.com,slave.sniper.com;
+  option routers 192.168.206.2;
+}
+
+
+:wq
+
+# systemctl start dhcpd
+# systemctl enable dhcpd
+
+# firewall-cmd --zone=public --add-service=dhcp --permanent
+# firewall-cmd --reload
+
++++++++++++++++++++++++++++++++++++++++++++++++++
+Configure DHCP Client
+``````````````````````
+# nmtui
+
+OR
+# dhclient -r  [ -r : release ]
+# dhclient

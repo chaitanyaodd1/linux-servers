@@ -1,0 +1,61 @@
+Virtual Host:
+`````````````
+domain: ditiss.com
+
+Shared Hosting : Forward Zone
+
+# vim /etc/named.conf
+
+zone "ditiss.com" IN {
+		type master;
+		file	"for.ditiss.com";
+};
+
+:wq
+
+# cd /var/named
+# cp -av for.sniper.com for.ditiss.com
+# vim for.ditiss.com
+$TTL 1D
+@	IN	SOA	server.ditiss.com.			dheeraj@gmail.com. (
+										0	; serial
+										1D	; refresh
+										1H	; retry
+										1W	; expire
+										3H )	; minimum
+			IN		NS		server.ditiss.com.
+ditiss.com.				IN		A		192.168.1.254
+server.ditiss.com.		IN		A		192.168.1.254
+www.ditiss.com.			IN		A		192.168.1.254
+:wq
+
+# systemctl restart named
+# host ditiss.com
+# host www.ditiss.com
+_______________________________
+# vim /etc/httpd/sites-available/ditiss.conf
+
+<VirtualHost *:80>
+    ServerName ditiss.com
+    ServerAlias www.ditiss.com
+    DocumentRoot /var/www/html/ditiss.com/
+    ErrorLog /var/log/httpd/ditiss_error_log
+    CustomLog /var/log/httpd/ditiss_access_log combined
+</VirtualHost>
+
+:wq
+
+# mkdir /var/www/html/ditiss.com
+# cat > /var/www/html/ditiss.com/index.html
+<html><body><h1>LOL DITISS</h1></body></html>
+
+^D : To save
+
+# ln -s /etc/httpd/sites-available/ditiss.conf /etc/httpd/sites-enabled/ditiss.conf
+
+# systemctl restart httpd
+____
+Access:
+```````
+http://ditiss.com
+http://www.ditiss.com

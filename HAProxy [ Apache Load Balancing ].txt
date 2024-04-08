@@ -1,0 +1,33 @@
+HAProxy [ Apache Load Balancing ]
+``````````````````````````````
+apache loadbalancer
+`````````````````
+Master Apache: 
+	master.sniper.com [192.168.206.140]
+	
+Slave Apache: 
+	slave.sniper.com [192.168.206.141]
+
+HA Proxy: haproxy.sniper.com [206.142]
+
+
+# yum install haproxy -y
+
+
+
+# vim /etc/haproxy/test.cfg
+frontend http80
+        bind *:80
+        timeout client 60s
+        mode http
+        default_backend webservers
+
+backend webservers
+        timeout connect 10s
+        timeout server 100s
+        balance roundrobin
+        mode http
+        server web1 master.sniper.com:80
+        server web2 slave.sniper.com:80
+
+# haproxy -f test.cfg

@@ -1,0 +1,49 @@
+CUPS [Common UNIX Printing System]
+``````````````````````````````````
+Package: cups
+PORT: 631
+Config: /etc/cups/cupsd.conf
+Service: cups
+
+
+
+
+
+
+
+# yum install cups -y
+
+
+
+
+
+
+
+# vim /etc/cups/cupsd.conf
+
+Listen 192.168.1.1:631
+Listen	127.0.0.1:631
+Listen /var/run/cups/cups.sock
+DefaultEncryption	  Never
+
+<Location />
+		Order allow,deny
+		Allow from 192.168.1.0/24
+</Location>
+<Location /admin>
+		Order allow,deny
+		Allow from 192.168.1.0/24
+</Location
+:wq!
+
+systemctl start cups
+systemctl enable cups
+
+# firewall-cmd --zone=public --add-port=631/tcp --permanent
+# firewall-cmd --reload
+
+
+firefox http://localhost:631
+
+Click on "Printer" -> "
+-------------

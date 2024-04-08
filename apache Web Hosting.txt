@@ -1,0 +1,151 @@
+Web Hosting
+````````
+- Dedicated Hosting
+- Shared Hosting [ Virtual hosting ]
+++++++++++++++++++++++++++++++++
+Package: httpd
+service: httpd
+ports: 
+	- HTTP		: 80/tcp
+	- HTTPs		: 443/tcp
+	- HTTP-alt	: 8080/tcp
+	- HTTPs-alt	: 8443/tcp
+
+DocumentRoot	:  	/var/www/html
+Apache Logs	:	/var/log/httpd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Step 1 — Installing Apache
+````````````````````````
+# yum install httpd -y
+
+Step 2 — Checking your Web Server
+```````````````````````````````
+# systemctl start httpd
+# systemctl status httpd
+# systemctl enable httpd
+
+Go to DocumentRoot:
+# cd /var/www/html
+# cat > index.html
+<html>
+	<body>
+		<h1>Dedicated Apache Server</h1>
+	</body>
+</html>
+
+To open test apache page:
+```````````````````
+http://sniper.com
+OR
+http://www.sniper.com
+OR
+http://192.168.206.100
+
+
+
+
+
+
+
+SHARED HOSTING:
+````````````
+Shared DNS: bts.army [ forward zone ]
+
+# vim /etc/named.conf
+
+Go to end of file and add
+
+zone "bts.army" IN {
+		type master;
+		file "for.bts.army";
+};
+
+:wq
+
+# cd /var/named
+# vim for.bts.army
+$TTL 1D
+@       IN SOA  server.bts.army. email@gmail.com. (
+                                        0       ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+                        IN      NS      server.bts.army.
+bts.army.               IN      A       192.168.206.151
+server.bts.army.        IN      A       192.168.206.151
+www.bts.army.           IN      A       192.168.206.151
+
+:wq
+
+# systemctl restart named
+# host -t a bts.army
+# host -t a www.bts.army
+
+````````````````````````````````````
+
+
+
+Step 3 — Managing the Apache Process
+`````````````````````````````````````
+# cd /var/www/html
+# cat > index.html
+<html>
+  <body>
+    <h1>Success! The your_domain is working!</h1>
+  </body>
+</html>
+
+
+
+# mkdir /etc/httpd/sites-available /etc/httpd/sites-enabled
+
+sites-available: directory to store Apache virtual host configuration files
+
+sites-enabled  : directory will hold symbolic links/shortcut to virtual hosts, to enable the conf file
+
+
+# vim /etc/httpd/conf/httpd.conf
+
+Go to end of file and add
+
+IncludeOptional sites-enabled/*.conf
+
+:wq
+
+# vim /etc/httpd/sites-available/sniper.conf
+
+<VirtualHost *:80>
+    ServerName sniper.com
+    ServerAlias www.sniper.com
+    DocumentRoot /var/www/html/sniper.com/
+    ErrorLog /var/log/httpd/sniper_error_log
+    CustomLog /var/log/httpd/sniper_access_log combined
+</VirtualHost>
+:wq
+
+
+# ln -s /etc/httpd/sites-available/sniper.conf /etc/httpd/sites-enabled/sniper.conf
+
+ln : Link
+-s : Symbolic/Soft Link
+__________________________________
+config test:
+# httpd -t
+
+To confirm that we loaded the VirtualHosts:
+# httpd -S
+____________________________________
